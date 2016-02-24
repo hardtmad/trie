@@ -1,0 +1,9 @@
+Least common word honourable occurs 1 times.
+Most common word the occurs 446 times.
+Time taken to build trie in milliseconds: 5
+Time taken to search for Holmes in milliseconds: 0
+Time taken to search for Holmes in microseconds: 1
+Time taken to insert wumpus in milliseconds: 0
+Time taken to insert wumpus in microseconds: 1
+Time taken to delete king in milliseconds: 0
+Time taken to delete king in microseconds: 2
