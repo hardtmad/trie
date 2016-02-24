@@ -27,11 +27,11 @@ node_t* make_node(char ch) {
       new_node->child[i] = NULL;
     }
   return new_node;
-}
+} //make_node
 
 /* Function to insert new words into trie if necessary 
    Returns number of instances of word so far*/
-int insert(char* word, node_t* trie, FILE * output)
+int insert(char* word, node_t* trie)
 {
   // Follow the word down the trie until there is a node missing
   int index = 0;
@@ -46,7 +46,6 @@ int insert(char* word, node_t* trie, FILE * output)
     }//for each char in word
   trie->counter++; //increment counter for this word
   return trie->counter;
-  //fprintf(output, "word: %s, counter: %d\n", word, trie->counter);
 } //insert
 
 /* Function to delete words from the trie */
@@ -76,9 +75,45 @@ int search(char * word, node_t * trie)
           return 0;
         }
       trie = trie->child[word[index]-'a'];
-    }
+  }
   return 1;
+} //search
+
+void run_insert_test(node_t* trie, FILE* output)
+{
+  /*Test time taken to insert*/
+  struct timeval s_insert;
+  struct timeval e_insert;
+  gettimeofday(&s_insert, NULL);
+  insert("theeeeeeeee", trie);
+  gettimeofday(&e_insert, NULL);
+  suseconds_t insert_micro_taken = e_insert.tv_usec - s_insert.tv_usec;
+  suseconds_t insert_milli_taken = ((e_insert.tv_sec - s_insert.tv_sec)*1000) +
+    ((e_insert.tv_usec - s_insert.tv_usec)/1000);
+  fprintf(output, "Time taken to insert in milliseconds: %lld\n",
+          insert_milli_taken);
+  fprintf(output, "Time taken to insert in microseconds: %lld\n",
+          insert_micro_taken);
 }
+
+void run_delete_test(char* word, node_t* trie, FILE* output)
+{
+  /*Test time taken to delete*/
+  struct timeval s_del;
+  struct timeval e_del;
+  gettimeofday(&s_del, NULL);
+  delete("the", trie);
+  gettimeofday(&e_del, NULL);
+  suseconds_t del_micro_taken = e_del.tv_usec - s_del.tv_usec;
+  suseconds_t del_milli_taken = ((e_del.tv_sec - s_del.tv_sec)*1000) +
+    ((e_del.tv_usec - s_del.tv_usec)/1000);
+  fprintf(output, "Time taken to delete in milliseconds: %lld\n",
+          del_milli_taken);
+  fprintf(output, "Time taken to delete in microseconds: %lld\n",
+          del_micro_taken);
+  
+}
+
 
 
 int main(int argc, char** argv)
@@ -88,15 +123,9 @@ int main(int argc, char** argv)
   gettimeofday(&start, NULL);
 
   // File initialization
-  FILE* words2;
-  FILE* holmes;
-  FILE* oxford;
   FILE* input_fp;
   FILE* output_fp;
   input_fp = fopen(argv[1], "r");
-  words2 = fopen("words2.txt", "r");
-  holmes = fopen("Holmes.txt", "r");
-  oxford = fopen("OxfordMedical.txt", "r");
   output_fp = fopen("results.txt", "w");
 
   char* word = malloc(MAX_WORD_LEN);
@@ -119,7 +148,7 @@ int main(int argc, char** argv)
     {
     word_len = strlen(word);
     // Insert each word into the trie
-    cur_word_count = insert(word, my_trie, output_fp);
+    cur_word_count = insert(word, my_trie);
       
     // Check if word is most or least common
     if(cur_word_count > highest_word_count)
@@ -131,23 +160,65 @@ int main(int argc, char** argv)
       {
       lowest_word_count = cur_word_count;
       strcpy(least_common_word, word);
-    }
+      }
     my_trie = my_trie_head;
-  }
+    }
 
   gettimeofday(&end, NULL);
-  time_t secs_taken = end.tv_sec - start.tv_sec;
-  suseconds_t microsecs_taken = end.tv_usec - start.tv_usec;
-  suseconds_t millisecs_taken = (secs_taken/1000) + (microsecs_taken*1000);
-    
+  suseconds_t millisecs_taken = ((end.tv_sec - start.tv_sec)*1000) +
+    ((end.tv_usec - start.tv_usec)/1000);
 
   fprintf(output_fp, "Least common word %s occurs %d times.\n",
           least_common_word, lowest_word_count);
   fprintf(output_fp, "Most common word %s occurs %d times.\n",
           most_common_word, highest_word_count);
-  fprintf(output_fp, "time taken in milliseconds: %lld\n", millisecs_taken);
+  fprintf(output_fp, "Time taken to build trie in milliseconds: %lld\n",
+          millisecs_taken);
 
+  /* words2.txt testing*/
+  //run_insert_test(my_trie, output_fp);
+  //run_delete_test("the", my_trie, output_fp);
+  /*Test time taken to search for likely*/
+  struct timeval s;
+  struct timeval e;
+  // search likely
+  gettimeofday(&s, NULL);
+  search("likely", my_trie);
+  gettimeofday(&e, NULL);
+  suseconds_t search_milli = ((e.tv_sec - s.tv_sec)*1000) +
+    ((e.tv_usec - s.tv_usec)/1000);
+  suseconds_t search_micro = e.tv_usec - s.tv_usec;
+  fprintf(output_fp, "Time taken to search for likely in milliseconds: %lld\n",
+          search_milli);
+  fprintf(output_fp, "Time taken to search for likely in microseconds: %lld\n",
+          search_micro);
 
+  // insert hyphenation
+  gettimeofday(&s, NULL);
+  insert("hyphenation", my_trie);
+  gettimeofday(&e, NULL);
+  suseconds_t insert_milli = ((e.tv_sec - s.tv_sec)*1000) +
+    ((e.tv_usec - s.tv_usec)/1000);
+  suseconds_t insert_micro = e.tv_usec - s.tv_usec;
+  fprintf(output_fp, "Time taken to insert hyphenation in milliseconds: %lld\n",
+          search_milli);
+  fprintf(output_fp, "Time taken to insert hyphenation in microseconds: %lld\n",
+          search_micro);
+
+  // delete brisk
+  gettimeofday(&s, NULL);
+  delete("brisk", my_trie);
+  gettimeofday(&e, NULL);
+  suseconds_t delete_milli = ((e.tv_sec - s.tv_sec)*1000) +
+    ((e.tv_usec - s.tv_usec)/1000);
+  suseconds_t delete_micro = e.tv_usec - s.tv_usec;
+  fprintf(output_fp, "Time taken to delete brisk in milliseconds: %lld\n",
+          delete_milli);
+  fprintf(output_fp, "Time taken to delete brisk in microseconds: %lld\n",
+          delete_micro);
+
+  /*End of testing*/
+  
   free(word);
   free(most_common_word);
   free(least_common_word);
