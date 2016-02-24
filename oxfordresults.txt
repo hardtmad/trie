@@ -1,0 +1,9 @@
+Least common word difficult occurs 1 times.
+Most common word the occurs 556 times.
+Time taken to build trie in milliseconds: 8
+Time taken to search for aardvark in milliseconds: 0
+Time taken to search for aardvark in microseconds: 0
+Time taken to insert anteater in milliseconds: 0
+Time taken to insert anteater in microseconds: 0
+Time taken to delete the in milliseconds: 0
+Time taken to delete the in microseconds: 2
