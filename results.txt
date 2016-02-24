@@ -1,0 +1,9 @@
+Least common word calves occurs 1 times.
+Most common word th occurs 10 times.
+Time taken to build trie in milliseconds: 12
+Time taken to search for likely in milliseconds: 0
+Time taken to search for likely in microseconds: 0
+Time taken to insert hyphenation in milliseconds: 0
+Time taken to insert hyphenation in microseconds: 0
+Time taken to delete brisk in milliseconds: 0
+Time taken to delete brisk in microseconds: 3
